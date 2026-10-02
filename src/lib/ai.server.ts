@@ -98,3 +98,69 @@ export async function downloadVideo(id: string) {
   if (!res.ok) throw new Error(`Video download failed (${res.status})`);
   return new Uint8Array(await res.arrayBuffer());
 }
+
+export const CHAT_MODEL = "google/gemini-3.8-flash";
+export const IMAGE_MODEL = "google/gemini-3.1-flash-image"; // Nano Banana
+
+type ChatPart = { type: "text"; text: string } | { type: "image_url"; image_url: { url: string } };
+export type ChatMsg = { role: "system" | "user" | "assistant"; content: string | ChatPart[] };
+
+async function gatewayError(res: Response) {
+  const body = (await res.json().catch(() => null)) as { message?: string; error?: { message?: string } } | null;
+  if (res.status === 402) return new Error("AI credits are used up. Please add credits to keep chatting.");
+  if (res.status === 429) return new Error("Too many requests right now. Please wait a moment and try again.");
+  return new Error(body?.message ?? body?.error?.message ?? `AI request failed (${res.status})`);
+}
+
+/** Streams a Gemini chat completion server-side and returns the final text. */
+export async function chatGemini(messages: ChatMsg[]) {
+  const key = apiKey();
+  const res = await fetch(`${GATEWAY}/v1/chat/completions`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "X-Lovable-AIG-SDK": "fetch" },
+    body: JSON.stringify({ model: CHAT_MODEL, messages, stream: true }),
+  });
+  if (!res.ok || !res.body) throw await gatewayError(res);
+  const reader = res.body.getReader();
+  const dec = new TextDecoder();
+  let buf = "";
+  let text = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    let i;
+    while ((i = buf.indexOf("\n")) >= 0) {
+      const line = buf.slice(0, i).trim();
+      buf = buf.slice(i + 1);
+      if (!line.startsWith("data:")) continue;
+      const payload = line.slice(5).trim();
+      if (payload === "[DONE]") continue;
+      try {
+        const j = JSON.parse(payload);
+        text += j.choices?.[0]?.delta?.content ?? "";
+      } catch { /* partial */ }
+    }
+  }
+  return text;
+}
+
+/** Generates an image with Nano Banana; returns raw bytes + mime. */
+export async function nanoBanana(prompt: string, refUrls: string[]) {
+  const res = await fetch(`${GATEWAY}/v1/chat/completions`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey()}`, "Content-Type": "application/json", "X-Lovable-AIG-SDK": "fetch" },
+    body: JSON.stringify({
+      model: IMAGE_MODEL,
+      modalities: ["image", "text"],
+      messages: [{ role: "user", content: [{ type: "text", text: prompt }, ...refUrls.map((url) => ({ type: "image_url", image_url: { url } }))] }],
+    }),
+  });
+  if (!res.ok) throw await gatewayError(res);
+  const j = (await res.json()) as any;
+  const url: string | undefined = j.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+  if (!url?.startsWith("data:")) throw new Error("The image could not be created. Please try again.");
+  const [meta, b64] = url.split(",");
+  const mime = meta!.slice(5).split(";")[0] || "image/png";
+  return { bytes: Uint8Array.from(atob(b64!), (c) => c.charCodeAt(0)), mime };
+}
