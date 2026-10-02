@@ -64,23 +64,31 @@ async function jobRes(res: Response): Promise<Job> {
   return res.json() as Promise<Job>;
 }
 
-export async function createVideoJob(input: string, seconds: number, aspect: string) {
-  return jobRes(
-    await fetch(`${GATEWAY}/v1/videos`, {
+export async function createVideoJob(input: string, seconds: number, aspect: string, opts: { resolution?: "720p" | "1080p"; imageUrl?: string } = {}) {
+  const send = (body: unknown) =>
+    fetch(`${GATEWAY}/v1/videos`, {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey()}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: VIDEO_MODEL,
-        input,
+        input: body,
         response_format: {
           type: "video",
-          resolution: "720p",
+          resolution: opts.resolution ?? "720p",
           duration: `${Math.min(10, Math.max(3, Math.round(seconds)))}s`,
           aspect_ratio: aspect === "9:16" ? "9:16" : "16:9",
         },
       }),
-    }),
-  );
+    });
+  if (opts.imageUrl) {
+    // Animate from the Nano Banana keyframe; fall back to text-only if not accepted.
+    const res = await send([
+      { role: "user", content: [{ type: "input_text", text: `Animate this keyframe. ${input}` }, { type: "input_image", image_url: opts.imageUrl }] },
+    ]);
+    if (res.ok || res.status === 402 || res.status === 429) return jobRes(res);
+    console.warn("Keyframe video input rejected, falling back to text", res.status, await res.text().catch(() => ""));
+  }
+  return jobRes(await send(input));
 }
 
 export async function pollVideoJob(id: string) {
