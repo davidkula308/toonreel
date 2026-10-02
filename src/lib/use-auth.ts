@@ -1,0 +1,23 @@
+import { useEffect, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+
+export function useAuth() {
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
+    supabase.auth.getSession().then(({ data: d }) => {
+      setSession(d.session);
+      setLoading(false);
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
+  return { session, user: session?.user ?? null, loading };
+}
+
+export async function signedUrl(path?: string | null) {
+  if (!path) return null;
+  const { data } = await supabase.storage.from("media").createSignedUrl(path, 60 * 60);
+  return data?.signedUrl ?? null;
+}
