@@ -38,14 +38,14 @@ function Settings() {
   const upload = async (file: File, field: "logo_path" | "custom_intro_path") => {
     const path = `${user!.id}/${field}-${Date.now()}-${file.name.replace(/[^\w.]/g, "_")}`;
     const { error } = await supabase.storage.from("media").upload(path, file, { upsert: true });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setS((x) => ({ ...x, [field]: path }));
     toast.success("Uploaded — remember to save.");
   };
 
   const save = async () => {
     const { error } = await supabase.from("user_settings").upsert({ ...s, user_id: user!.id, updated_at: new Date().toISOString() });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["settings"] });
     toast.success("Settings saved");
   };
@@ -61,7 +61,7 @@ function Settings() {
         <h2 className="text-2xl font-semibold">AI behavior</h2>
         <div>
           <Label>How thorough should the AI be? ({s.thoroughness}/5)</Label>
-          <Slider className="mt-3" min={1} max={5} step={1} value={[s.thoroughness]} onValueChange={([v]) => setS({ ...s, thoroughness: v })} />
+          <Slider className="mt-3" min={1} max={5} step={1} value={[s.thoroughness]} onValueChange={([v]) => setS({ ...s, thoroughness: v ?? 3 })} />
           <div className="mt-1 flex justify-between text-xs text-muted-foreground"><span>Quick & brief</span><span>Very detailed</span></div>
         </div>
         <div><Label>Details to pay attention to</Label>
@@ -84,7 +84,7 @@ function Settings() {
           <div><Label>Channel logo</Label>
             <Input type="file" accept="image/*" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], "logo_path")} /></div>
           <div><Label>Intro length: {s.intro_seconds}s</Label>
-            <Slider className="mt-3" min={1} max={10} step={0.5} value={[s.intro_seconds]} onValueChange={([v]) => setS({ ...s, intro_seconds: v })} /></div>
+            <Slider className="mt-3" min={1} max={10} step={0.5} value={[s.intro_seconds]} onValueChange={([v]) => setS({ ...s, intro_seconds: v ?? 3 })} /></div>
           <div>
             <Label>Use your own intro instead (image or video)</Label>
             <Input type="file" accept="image/*,video/*" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], "custom_intro_path")} />

@@ -24,7 +24,7 @@ function Studio() {
 
   const create = async () => {
     const { data, error } = await supabase.from("projects").insert({ user_id: user!.id }).select("id").single();
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     nav({ to: "/project/$id", params: { id: data.id } });
   };
 

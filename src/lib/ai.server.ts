@@ -6,7 +6,7 @@ export const TEXT_MODEL = "openai/gpt-6-astra";
 export const VIDEO_MODEL = "google/gemini-omni-1.1-flash";
 
 function apiKey() {
-  const key = process.env.LOVABLE_API_KEY;
+  const key = process.env['LOVABLE_API_KEY'];
   if (!key) throw new Error("AI is not configured yet.");
   return key;
 }

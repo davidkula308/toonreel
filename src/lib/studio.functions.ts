@@ -58,7 +58,8 @@ export const editScene = createServerFn({ method: "POST" })
     const updated = parseJSON<Scene>(
       await askAI(system, `Style: ${styleText(project)}\nScene: ${JSON.stringify(scenes[idx])}\nEdit: ${data.instruction}`, "low"),
     );
-    scenes[idx] = { ...scenes[idx], ...updated, id: scenes[idx].id, status: "idle", clipPath: null, jobId: null, error: null };
+    const prev = scenes[idx]!;
+    scenes[idx] = { ...prev, ...updated, id: prev.id, status: "idle", clipPath: null, jobId: null, error: null };
     const suggestions = (project.suggestions as Suggestion[]).filter((s) => s.id !== data.suggestionId);
     await context.supabase.from("projects").update({ scenes, suggestions }).eq("id", project.id);
     return { ok: true };
