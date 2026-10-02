@@ -21,7 +21,7 @@ function Layout() {
         <div className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-4">
           <Link to="/studio" className="font-display text-xl font-bold">Toon<span className="text-primary">Reel</span></Link>
           <nav className="flex gap-4 text-sm font-semibold">
-            <Link to="/studio" activeProps={{ className: "text-primary" }}>My videos</Link>
+            <Link to="/studio" activeProps={{ className: "text-primary" }}>My projects</Link>
             <Link to="/settings" activeProps={{ className: "text-primary" }}>Settings</Link>
           </nav>
           <button className="ml-auto text-sm text-muted-foreground" onClick={() => supabase.auth.signOut()}>Sign out</button>
