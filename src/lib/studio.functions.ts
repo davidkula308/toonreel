@@ -50,7 +50,7 @@ export const analyzeScript = createServerFn({ method: "POST" })
 Reply with JSON only: {"title":"video title","scenes":[${SCENE_SHAPE}],"suggestions":[{"id":"g1","title":"short","detail":"why it helps","sceneId":"s1 or null","instruction":"precise edit to apply to that scene"}]}`;
     const prompt = `Description: ${project.description}\nVisual style: ${styleText(project)}\nScript:\n${project.script}`;
     const out = parseJSON<{ title: string; scenes: Scene[]; suggestions: Suggestion[] }>(await askAI(system, prompt));
-    let scenes = (out.scenes ?? []).slice(0, plan.maxScenes).map((s, i) => ({ ...s, id: s.id || `s${i + 1}`, status: "idle" as const }));
+    let scenes: Scene[] = (out.scenes ?? []).slice(0, plan.maxScenes).map((s, i) => ({ ...s, id: s.id || `s${i + 1}`, status: "idle" as const }));
     if (budget) {
       // Fit to budget: keep scenes in order, shrink the last one if needed.
       const fitted: Scene[] = [];
@@ -87,7 +87,7 @@ export const editScene = createServerFn({ method: "POST" })
       await askAI(system, `Style: ${styleText(project)}\nScene: ${JSON.stringify(scenes[idx])}\nEdit: ${data.instruction}`, "low"),
     );
     const prev = scenes[idx]!;
-    scenes[idx] = { ...prev, ...updated, id: prev.id, status: "idle", clipPath: prev.clipPath ?? null, jobId: null, error: null, remake: !!prev.clipPath || prev.remake };
+    scenes[idx] = { ...prev, ...updated, id: prev.id, status: "idle", clipPath: prev.clipPath ?? null, jobId: null, error: null, remake: !!prev.clipPath || !!prev.remake };
     const suggestions = (project.suggestions as Suggestion[]).filter((s) => s.id !== data.suggestionId);
     await context.supabase.from("projects").update({ scenes, suggestions }).eq("id", project.id);
     return { ok: true };
@@ -147,7 +147,7 @@ ${scene.onScreenText ? `On-screen text reads: "${scene.onScreenText}"` : "No on-
 Audio: playful light music and fitting sound effects.
 Keep characters consistent with this series: ${cast}
 In a single continuous shot. Consider micro-detail, expression and timing.`;
-    const job = await createVideoJob(input, seconds, project.aspect, { resolution: plan.resolution, imageUrl });
+    const job = await createVideoJob(input, seconds, project.aspect, { resolution: plan.resolution, ...(imageUrl ? { imageUrl } : {}) });
     await recordUse(context.userId, project.id, scene.id, isRemake ? "remake" : "clip", cost, info.creditsLeft === null);
     if (isRemake) await recordUse(context.userId, project.id, scene.id, "clip", 0, true);
     Object.assign(scene, { status: "generating", jobId: job.id, error: null, clipPath: null, keyframePath, remake: true });

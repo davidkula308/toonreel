@@ -88,11 +88,11 @@ export async function createBachsCheckout(body: Record<string, unknown>) {
   const send = (b: Record<string, unknown>) =>
     fetch(`${BACHS}/v1/checkout-sessions`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${bachsKey()}`, "Content-Type": "application/json", "Idempotency-Key": String(b.reference ?? crypto.randomUUID()) },
+      headers: { Authorization: `Bearer ${bachsKey()}`, "Content-Type": "application/json", "Idempotency-Key": String(b["reference"] ?? crypto.randomUUID()) },
       body: JSON.stringify(b),
     });
   let res = await send(body);
-  if (res.status === 400 && body.reference) {
+  if (res.status === 400 && body["reference"]) {
     const { reference: _r, ...rest } = body;
     res = await send(rest);
   }
