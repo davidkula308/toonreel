@@ -41,7 +41,7 @@ export function AIChat({ userId, projectId }: { userId: string; projectId: strin
 
   const newChat = async () => {
     const { data, error } = await supabase.from("chat_threads").insert({ user_id: userId, project_id: projectId }).select("id").single();
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return null; }
     await qc.invalidateQueries({ queryKey: ["threads", projectId] });
     setActive(data.id);
     return data.id as string;
@@ -50,7 +50,7 @@ export function AIChat({ userId, projectId }: { userId: string; projectId: strin
   const clearChats = async () => {
     if (!confirm("Delete all chats for this video? What the AI learned about you is kept.")) return;
     const { error } = await supabase.from("chat_threads").delete().eq("project_id", projectId);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setActive(null);
     qc.invalidateQueries({ queryKey: ["threads", projectId] });
   };
