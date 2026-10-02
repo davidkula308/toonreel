@@ -21,3 +21,18 @@ export async function signedUrl(path?: string | null) {
   const { data } = await supabase.storage.from("media").createSignedUrl(path, 60 * 60);
   return data?.signedUrl ?? null;
 }
+
+/** Saves a stored file to the user's device. */
+export async function saveToDevice(path: string | null | undefined, filename: string) {
+  if (!path) return;
+  const { data } = await supabase.storage.from("media").createSignedUrl(path, 60 * 10, { download: filename });
+  if (!data?.signedUrl) return;
+  const a = document.createElement("a");
+  a.href = data.signedUrl;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+export const fileSafe = (s: string) => s.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "video";

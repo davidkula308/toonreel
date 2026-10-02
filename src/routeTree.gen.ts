@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedProjectIdRouteImport } from './routes/_authenticated/project.$id'
+import { Route as ApiPublicBachsWebhookRouteImport } from './routes/api/public/bachs-webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -45,6 +46,11 @@ const AuthenticatedProjectIdRoute = AuthenticatedProjectIdRouteImport.update({
   path: '/project/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicBachsWebhookRoute = ApiPublicBachsWebhookRouteImport.update({
+  id: '/api/public/bachs-webhook',
+  path: '/api/public/bachs-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/project/$id': typeof AuthenticatedProjectIdRoute
+  '/api/public/bachs-webhook': typeof ApiPublicBachsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/project/$id': typeof AuthenticatedProjectIdRoute
+  '/api/public/bachs-webhook': typeof ApiPublicBachsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,12 +76,25 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/project/$id': typeof AuthenticatedProjectIdRoute
+  '/api/public/bachs-webhook': typeof ApiPublicBachsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/settings' | '/studio' | '/project/$id'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/settings'
+    | '/studio'
+    | '/project/$id'
+    | '/api/public/bachs-webhook'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/settings' | '/studio' | '/project/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/settings'
+    | '/studio'
+    | '/project/$id'
+    | '/api/public/bachs-webhook'
   id:
     | '__root__'
     | '/'
@@ -82,12 +103,14 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/studio'
     | '/_authenticated/project/$id'
+    | '/api/public/bachs-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiPublicBachsWebhookRoute: typeof ApiPublicBachsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -134,6 +157,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProjectIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/bachs-webhook': {
+      id: '/api/public/bachs-webhook'
+      path: '/api/public/bachs-webhook'
+      fullPath: '/api/public/bachs-webhook'
+      preLoaderRoute: typeof ApiPublicBachsWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -156,6 +186,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiPublicBachsWebhookRoute: ApiPublicBachsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

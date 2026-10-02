@@ -100,6 +100,75 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_ledger: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          kind: string
+          project_id: string | null
+          scene_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          kind: string
+          project_id?: string | null
+          scene_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          project_id?: string | null
+          scene_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          checkout_id: string | null
+          created_at: string
+          currency: string
+          email: string
+          id: string
+          paid_at: string | null
+          plan: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          checkout_id?: string | null
+          created_at?: string
+          currency?: string
+          email: string
+          id?: string
+          paid_at?: string | null
+          plan: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          checkout_id?: string | null
+          created_at?: string
+          currency?: string
+          email?: string
+          id?: string
+          paid_at?: string | null
+          plan?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           aspect: string
@@ -140,6 +209,36 @@ export type Database = {
           style?: string
           suggestions?: Json
           title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          credits_left: number
+          credits_reset_at: string
+          period_end: string | null
+          plan: string
+          trial_started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          credits_left?: number
+          credits_reset_at?: string
+          period_end?: string | null
+          plan?: string
+          trial_started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          credits_left?: number
+          credits_reset_at?: string
+          period_end?: string | null
+          plan?: string
+          trial_started_at?: string
           updated_at?: string
           user_id?: string
         }
