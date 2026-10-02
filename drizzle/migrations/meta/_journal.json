@@ -8,6 +8,13 @@
       "when": 1790930120798,
       "tag": "0000_init_reelbuddy",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790932382006,
+      "tag": "0001_ai_chat",
+      "breakpoints": true
     }
   ]
 }

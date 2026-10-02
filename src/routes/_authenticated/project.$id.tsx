@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ChannelIntro } from "@/components/ChannelIntro";
+import { AIChat } from "@/components/AIChat";
 import { signedUrl, useAuth } from "@/lib/use-auth";
 import { analyzeScript, editScene, startClip, checkClip } from "@/lib/studio.functions";
 import { PALETTES, STYLES, type Scene, type Suggestion } from "@/lib/studio-types";
@@ -183,6 +184,8 @@ function Editor() {
       )}
 
       {scenes.some((s) => s.status === "done") && <Player scenes={scenes} settings={settings} aspect={project.aspect} />}
+
+      {user && <AIChat userId={user.id} projectId={id} />}
     </div>
   );
 }
