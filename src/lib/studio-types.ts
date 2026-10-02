@@ -10,6 +10,8 @@ export type Scene = {
   jobId?: string | null;
   clipPath?: string | null;
   error?: string | null;
+  keyframePath?: string | null;
+  remake?: boolean;
 };
 
 export type Suggestion = {
