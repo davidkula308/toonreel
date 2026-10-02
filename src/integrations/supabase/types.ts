@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      projects: {
+        Row: {
+          aspect: string
+          created_at: string
+          description: string
+          id: string
+          palette: string
+          scenes: Json
+          script: string
+          style: string
+          suggestions: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          aspect?: string
+          created_at?: string
+          description?: string
+          id?: string
+          palette?: string
+          scenes?: Json
+          script?: string
+          style?: string
+          suggestions?: Json
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          aspect?: string
+          created_at?: string
+          description?: string
+          id?: string
+          palette?: string
+          scenes?: Json
+          script?: string
+          style?: string
+          suggestions?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          channel_name: string
+          custom_intro_path: string | null
+          detail_focus: string
+          intro_enabled: boolean
+          intro_seconds: number
+          logo_path: string | null
+          thoroughness: number
+          tone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel_name?: string
+          custom_intro_path?: string | null
+          detail_focus?: string
+          intro_enabled?: boolean
+          intro_seconds?: number
+          logo_path?: string | null
+          thoroughness?: number
+          tone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel_name?: string
+          custom_intro_path?: string | null
+          detail_focus?: string
+          intro_enabled?: boolean
+          intro_seconds?: number
+          logo_path?: string | null
+          thoroughness?: number
+          tone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
